@@ -36,19 +36,7 @@ export function Footer() {
 
   return (
     <footer className={styles.footer}>
-      <Text className={styles.text}>Power Platform Solution Blueprint (PPSB) v{packageJson.version}</Text>
-      <Text className={styles.text}>•</Text>
-      <Text className={styles.text}>
-        by{' '}
-        <Link
-          href="https://github.com/sabrish"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: tokens.colorNeutralForeground3, textDecoration: 'none' }}
-        >
-          SAB
-        </Link>
-      </Text>
+      <Text className={styles.text}>Power Platform Documentation Generator v{packageJson.version}</Text>
       <Text className={styles.text}>•</Text>
       <Link
         href="https://github.com/sabrish/power-platform-solution-blueprint"
@@ -57,7 +45,7 @@ export function Footer() {
         className={styles.iconLink}
       >
         <Open20Regular />
-        <span>GitHub</span>
+        <span>Forked from upstream</span>
       </Link>
     </footer>
   );
