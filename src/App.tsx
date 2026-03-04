@@ -221,11 +221,11 @@ function App() {
 
   // Show confirmation screen
   return (
-    <main id="main-content" className={styles.container} role="main" aria-label="Power Platform Solution Blueprint">
+    <main id="main-content" className={styles.container} role="main" aria-label="Power Platform Documentation Generator">
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <div className={styles.headerContent}>
-            <Title1>Power Platform Solution Blueprint</Title1>
+            <Title1>Power Platform Documentation Generator</Title1>
             <Subtitle1 className={styles.subtitle}>
               Complete architectural blueprints for your Power Platform systems
             </Subtitle1>

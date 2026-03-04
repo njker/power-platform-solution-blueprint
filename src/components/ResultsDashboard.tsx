@@ -22,6 +22,7 @@ import type { BlueprintResult, CustomAPI, ConnectionReference } from '../core';
 import type { ScopeSelection } from '../types/scope';
 import { formatDate, formatDateTime } from '../utils/dateFormat';
 import { PluginsList } from './PluginsList';
+import { PluginAssemblyRecoveryView } from './PluginAssemblyRecoveryView';
 import { PluginPackagesList } from './PluginPackagesList';
 import { EntityList } from './EntityList';
 import { FlowsList } from './FlowsList';
@@ -174,6 +175,7 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
     const s = result.summary;
     if (s.totalEntities > 0) return 'entities';
     if (s.totalPlugins > 0) return 'plugins';
+    if (s.totalPluginAssemblies > 0) return 'pluginAssemblies';
     if (s.totalPluginPackages > 0) return 'pluginPackages';
     if (s.totalFlows > 0) return 'flows';
     if (s.totalBusinessRules > 0) return 'businessRules';
@@ -237,6 +239,8 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
         return result.summary.totalPlugins > 0;
       case 'pluginPackages':
         return uniquePluginPackageCount > 0;
+      case 'pluginAssemblies':
+        return result.summary.totalPluginAssemblies > 0;
       case 'flows':
         return result.summary.totalFlows > 0;
       case 'businessRules':
@@ -277,6 +281,8 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
         return result.summary.totalPlugins;
       case 'pluginPackages':
         return uniquePluginPackageCount;
+      case 'pluginAssemblies':
+        return result.summary.totalPluginAssemblies;
       case 'flows':
         return result.summary.totalFlows;
       case 'businessRules':
@@ -312,6 +318,7 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
   const componentTypes = [
     { key: 'entities', label: 'Entities', icon: '📊' },
     { key: 'plugins', label: 'Plugins', icon: '🔌' },
+    { key: 'pluginAssemblies', label: 'Plugin Assemblies', icon: '🧩' },
     { key: 'pluginPackages', label: 'Plugin Packages', icon: '📦' },
     { key: 'flows', label: 'Flows', icon: '🌊' },
     { key: 'businessRules', label: 'Business Rules', icon: '📋' },
@@ -485,6 +492,10 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
 
             {selectedTab === 'pluginPackages' && hasResults('pluginPackages') && (
               <PluginPackagesList plugins={result.plugins} />
+            )}
+
+            {selectedTab === 'pluginAssemblies' && hasResults('pluginAssemblies') && (
+              <PluginAssemblyRecoveryView assemblies={result.pluginAssemblies} />
             )}
 
             {selectedTab === 'flows' && hasResults('flows') && (
