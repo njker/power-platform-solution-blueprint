@@ -68,6 +68,7 @@ export class JsonReporter {
       connectionReferences: result.connectionReferences,
       globalChoices: result.globalChoices,
       customConnectors: result.customConnectors,
+      canvasApps: result.canvasApps,
       webResources: result.webResources,
       webResourcesByType: this.mapToObject(result.webResourcesByType),
       erd: result.erd,

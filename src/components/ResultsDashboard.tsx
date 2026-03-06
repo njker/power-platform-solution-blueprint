@@ -36,6 +36,7 @@ import { ConnectionReferencesList } from './ConnectionReferencesList';
 import { ConnectionReferenceDetailView } from './ConnectionReferenceDetailView';
 import { GlobalChoicesList } from './GlobalChoicesList';
 import { CustomConnectorsList } from './CustomConnectorsList';
+import { CanvasAppsList } from './CanvasAppsList';
 import { ERDView } from './ERDView';
 import { CrossEntityMapView } from './CrossEntityMapView';
 import { ExternalDependenciesView } from './ExternalDependenciesView';
@@ -187,6 +188,7 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
     if (s.totalConnectionReferences > 0) return 'connectionReferences';
     if (s.totalGlobalChoices > 0) return 'globalChoices';
     if (s.totalCustomConnectors > 0) return 'customConnectors';
+    if (s.totalCanvasApps > 0) return 'canvasApps';
     if (s.totalWebResources > 0) return 'webResources';
     if ((result.securityRoles?.length ?? 0) > 0) return 'securityRoles';
     if ((result.fieldSecurityProfiles?.length ?? 0) > 0) return 'fieldSecurityProfiles';
@@ -258,6 +260,8 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
         return result.summary.totalGlobalChoices > 0;
       case 'customConnectors':
         return result.summary.totalCustomConnectors > 0;
+      case 'canvasApps':
+        return result.summary.totalCanvasApps > 0;
       case 'webResources':
         return result.summary.totalWebResources > 0;
       case 'securityRoles':
@@ -298,6 +302,8 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
         return result.summary.totalGlobalChoices;
       case 'customConnectors':
         return result.summary.totalCustomConnectors;
+      case 'canvasApps':
+        return result.summary.totalCanvasApps;
       case 'webResources':
         return result.summary.totalWebResources;
       case 'securityRoles':
@@ -325,6 +331,7 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
     { key: 'connectionReferences', label: 'Connection References', icon: '🔗' },
     { key: 'globalChoices', label: 'Global Choices', icon: '🎯' },
     { key: 'customConnectors', label: 'Custom Connectors', icon: '🔀' },
+    { key: 'canvasApps', label: 'Canvas Apps', icon: '🖼️' },
     { key: 'webResources', label: 'Web Resources', icon: '🌐' },
     { key: 'securityRoles', label: 'Security Roles', icon: '🔒' },
     { key: 'fieldSecurityProfiles', label: 'Field Security Profiles', icon: '🛡️' },
@@ -565,13 +572,17 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
                   />
                 )}
 
-                {selectedTab === 'customConnectors' && hasResults('customConnectors') && (
-                  <CustomConnectorsList customConnectors={result.customConnectors} />
-                )}
+            {selectedTab === 'customConnectors' && hasResults('customConnectors') && (
+              <CustomConnectorsList customConnectors={result.customConnectors} />
+            )}
 
-                {selectedTab === 'webResources' && hasResults('webResources') && (
-                  <WebResourcesList webResources={result.webResources} />
-                )}
+            {selectedTab === 'canvasApps' && hasResults('canvasApps') && (
+              <CanvasAppsList canvasApps={result.canvasApps} />
+            )}
+
+            {selectedTab === 'webResources' && hasResults('webResources') && (
+              <WebResourcesList webResources={result.webResources} />
+            )}
 
                 {selectedTab === 'securityRoles' && hasResults('securityRoles') && (
                   <SecurityRolesView securityRoles={result.securityRoles || []} />

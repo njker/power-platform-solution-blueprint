@@ -6,6 +6,7 @@ import { PublisherDiscovery } from '../discovery/PublisherDiscovery.js';
 import { SchemaDiscovery } from '../discovery/SchemaDiscovery.js';
 import { PluginDiscovery } from '../discovery/PluginDiscovery.js';
 import { PluginAssemblyDiscovery } from '../discovery/PluginAssemblyDiscovery.js';
+import { CanvasAppDiscovery } from '../discovery/CanvasAppDiscovery.js';
 import { FlowDiscovery } from '../discovery/FlowDiscovery.js';
 import { BusinessRuleDiscovery } from '../discovery/BusinessRuleDiscovery.js';
 import { ClassicWorkflowDiscovery } from '../discovery/ClassicWorkflowDiscovery.js';
@@ -25,6 +26,7 @@ import { HtmlReporter } from '../reporters/HtmlReporter.js';
 import { ZipPackager } from '../exporters/ZipPackager.js';
 import type { EntityMetadata, PluginStep, Publisher, Solution } from '../types.js';
 import type { PluginAssembly } from '../types/pluginAssembly.js';
+import type { CanvasApp } from '../types/canvasApp.js';
 import type { ComponentInventory, ComponentInventoryWithSolutions, WorkflowInventory } from '../types/components.js';
 import type {
   GeneratorOptions,
@@ -165,16 +167,19 @@ export class BlueprintGenerator {
       // STEP 6.9: Process Custom Connectors
       const customConnectors = await this.processCustomConnectors(inventory.customConnectorIds);
 
-      // STEP 6.10: Process Security Roles
+      // STEP 6.10: Process Canvas Apps
+      const canvasApps = await this.processCanvasApps(inventory.canvasAppIds);
+
+      // STEP 6.11: Process Security Roles
       const securityRoles = await this.processSecurityRoles(inventory.securityRoleIds);
 
-      // STEP 6.11: Process Field Security Profiles
+      // STEP 6.12: Process Field Security Profiles
       const { profiles: fieldSecurityProfiles, fieldSecurityByEntity } = await this.processFieldSecurityProfiles(
         inventory.fieldSecurityProfileIds,
         entities.map((e) => e.LogicalName)
       );
 
-      // STEP 6.12: Process Column Security (Attribute Masking & Column Security Profiles)
+      // STEP 6.13: Process Column Security (Attribute Masking & Column Security Profiles)
       const { attributeMaskingRules, columnSecurityProfiles } = await this.processColumnSecurity();
 
       // STEP 7: Process Forms and JavaScript Event Handlers
@@ -278,6 +283,7 @@ export class BlueprintGenerator {
         connectionReferences,
         globalChoices,
         customConnectors,
+        canvasApps,
         webResources,
         webResourcesByType,
       };
@@ -372,6 +378,7 @@ export class BlueprintGenerator {
         connectionReferences,
         globalChoices,
         customConnectors,
+        canvasApps,
         webResources,
         webResourcesByType,
         erd,
@@ -1339,6 +1346,38 @@ export class BlueprintGenerator {
   /**
    * Process Canvas Apps
    */
+  private async processCanvasApps(canvasAppIds: string[]): Promise<CanvasApp[]> {
+    if (canvasAppIds.length === 0) {
+      return [];
+    }
+
+    try {
+      this.reportProgress({
+        phase: 'discovering',
+        entityName: '',
+        current: 0,
+        total: canvasAppIds.length,
+        message: `🖼️ Documenting ${canvasAppIds.length} canvas app(s)...`,
+      });
+
+      const discovery = new CanvasAppDiscovery(this.client);
+      const apps = await discovery.getCanvasAppsByIds(canvasAppIds);
+
+      this.reportProgress({
+        phase: 'discovering',
+        entityName: '',
+        current: apps.length,
+        total: canvasAppIds.length,
+        message: `🖼️ Documented ${apps.length} canvas app(s)`,
+      });
+
+      return apps;
+    } catch (error) {
+      console.error('Error processing canvas apps:', error instanceof Error ? error.message : 'Unknown error');
+      return [];
+    }
+  }
+
   /**
    * Process forms and JavaScript event handlers
    */

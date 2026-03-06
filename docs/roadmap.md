@@ -8,6 +8,16 @@ Future development plans for Power Platform Solution Blueprint
 
 ## Baseline Comparison & Automation
 
+### Delivery Branching
+
+- `main`: stable integration branch
+- `feat/<roadmap-item>-phase-<n>`: phase branches per roadmap item
+- `fix/<topic>`: targeted fixes that can be merged into active feature branches or `main`
+- Active roadmap branches:
+  - `feat/baseline-comparison` (Baseline Comparison)
+  - `feat/canvas-apps-phase-1` (Canvas Apps phase 1)
+  - `feat/canvas-apps-phase-2` (Canvas Apps phase 2)
+
 ### Baseline Comparison
 
 - [x] Load previous blueprint JSON as comparison baseline
@@ -72,10 +82,11 @@ Future development plans for Power Platform Solution Blueprint
 
 ### Canvas Apps
 
-- Screen inventory with navigation mapping
-- Control analysis and formula complexity
-- Data source usage per screen
-- Accessibility checks
+- [x] Phase 1: Canvas app inventory (app metadata for selected solution/publisher scope)
+- [x] Phase 2: Screen inventory with navigation mapping (.msapp upload analysis beta)
+- [ ] Control analysis and formula complexity
+- [ ] Data source usage per screen
+- [ ] Accessibility checks
 - Requires .msapp extraction
 
 ### Power Pages
