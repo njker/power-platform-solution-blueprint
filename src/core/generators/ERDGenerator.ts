@@ -129,16 +129,6 @@ export class ERDGenerator {
     // Create set of entity logical names in this diagram for filtering
     const entityLogicalNames = new Set(entities.map(bp => bp.entity.LogicalName.toLowerCase()));
 
-    // Build map of entity -> set of attribute names (to validate relationships)
-    const entityAttributes = new Map<string, Set<string>>();
-    for (const { entity } of entities) {
-      const attributes = new Set<string>();
-      for (const attr of entity.Attributes || []) {
-        attributes.add(attr.LogicalName.toLowerCase());
-      }
-      entityAttributes.set(entity.LogicalName.toLowerCase(), attributes);
-    }
-
     // Track processed relationships to avoid duplicates
     const processedRelationships = new Set<string>();
     let relationshipCount = 0;
@@ -166,22 +156,50 @@ export class ERDGenerator {
             continue;
           }
 
-          // Skip if either attribute doesn't exist in the entity definition
-          const referencingAttrs = entityAttributes.get(rel.ReferencingEntity.toLowerCase());
-          const referencedAttrs = entityAttributes.get(rel.ReferencedEntity.toLowerCase());
-          if (!referencingAttrs?.has(rel.ReferencingAttribute.toLowerCase()) ||
-              !referencedAttrs?.has(rel.ReferencedAttribute.toLowerCase())) {
+          const relationshipKey = `${rel.ReferencedEntity}->${rel.ReferencingEntity}:${rel.SchemaName}`.toLowerCase();
+          const reverseKey = `${rel.ReferencingEntity}->${rel.ReferencedEntity}:${rel.SchemaName}`.toLowerCase();
+          if (!processedRelationships.has(relationshipKey)) {
+            processedRelationships.add(relationshipKey);
+            processedRelationships.add(reverseKey);
+
+            const parentEntity = this.sanitizeEntityName(rel.ReferencedEntity);
+            const childEntity = this.sanitizeEntityName(rel.ReferencingEntity);
+            const relationshipLabel = this.escapeRelationshipLabel(rel.SchemaName);
+
+            relationshipLines.push(`    ${parentEntity} "1" --> "*" ${childEntity} : ${relationshipLabel}`);
+            relationshipCount++;
+          }
+        }
+      }
+
+      // ManyToOne (this entity is child): Parent "1" --> "*" Child
+      if (entity.ManyToOneRelationships) {
+        for (const rel of entity.ManyToOneRelationships) {
+          if (isSystemRelationship(
+            rel.SchemaName,
+            rel.ReferencingAttribute,
+            rel.ReferencedEntity,
+            rel.ReferencingEntity
+          )) {
             continue;
           }
 
-          const relationshipKey = `${entity.LogicalName}->${rel.ReferencingEntity}:${rel.SchemaName}`;
+          if (!entityLogicalNames.has(rel.ReferencedEntity.toLowerCase()) ||
+              !entityLogicalNames.has(rel.ReferencingEntity.toLowerCase())) {
+            continue;
+          }
+
+          const relationshipKey = `${rel.ReferencedEntity}->${rel.ReferencingEntity}:${rel.SchemaName}`.toLowerCase();
+          const reverseKey = `${rel.ReferencingEntity}->${rel.ReferencedEntity}:${rel.SchemaName}`.toLowerCase();
           if (!processedRelationships.has(relationshipKey)) {
             processedRelationships.add(relationshipKey);
+            processedRelationships.add(reverseKey);
 
-            const parentEntity = this.sanitizeEntityName(entity.LogicalName);
+            const parentEntity = this.sanitizeEntityName(rel.ReferencedEntity);
             const childEntity = this.sanitizeEntityName(rel.ReferencingEntity);
+            const relationshipLabel = this.escapeRelationshipLabel(rel.SchemaName);
 
-            relationshipLines.push(`    ${parentEntity} "1" --> "*" ${childEntity}`);
+            relationshipLines.push(`    ${parentEntity} "1" --> "*" ${childEntity} : ${relationshipLabel}`);
             relationshipCount++;
           }
         }
@@ -206,8 +224,8 @@ export class ERDGenerator {
             continue;
           }
 
-          const relationshipKey = `${rel.Entity1LogicalName}<->${rel.Entity2LogicalName}:${rel.SchemaName}`;
-          const reverseKey = `${rel.Entity2LogicalName}<->${rel.Entity1LogicalName}:${rel.SchemaName}`;
+          const relationshipKey = `${rel.Entity1LogicalName}<->${rel.Entity2LogicalName}:${rel.SchemaName}`.toLowerCase();
+          const reverseKey = `${rel.Entity2LogicalName}<->${rel.Entity1LogicalName}:${rel.SchemaName}`.toLowerCase();
 
           // Only add if not already processed (avoid duplicates)
           if (!processedRelationships.has(relationshipKey) && !processedRelationships.has(reverseKey)) {
@@ -215,8 +233,9 @@ export class ERDGenerator {
 
             const entity1 = this.sanitizeEntityName(rel.Entity1LogicalName);
             const entity2 = this.sanitizeEntityName(rel.Entity2LogicalName);
+            const relationshipLabel = this.escapeRelationshipLabel(rel.SchemaName);
 
-            relationshipLines.push(`    ${entity1} "*" --> "*" ${entity2}`);
+            relationshipLines.push(`    ${entity1} "*" --> "*" ${entity2} : ${relationshipLabel}`);
             relationshipCount++;
           }
         }
@@ -271,6 +290,13 @@ export class ERDGenerator {
    */
   private sanitizeEntityName(logicalName: string): string {
     return logicalName.replace(/[^a-zA-Z0-9_]/g, '_');
+  }
+
+  /**
+   * Sanitize relationship label for Mermaid class diagram syntax.
+   */
+  private escapeRelationshipLabel(label: string): string {
+    return label.replace(/[^a-zA-Z0-9_]/g, '_');
   }
 
   /**

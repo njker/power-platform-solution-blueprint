@@ -41,17 +41,17 @@ export function Footer() {
       <Text className={styles.text}>
         by{' '}
         <Link
-          href="https://github.com/sabrish"
+          href="https://github.com/njker"
           target="_blank"
           rel="noopener noreferrer"
           style={{ color: tokens.colorNeutralForeground3, textDecoration: 'none' }}
         >
-          SAB
+          NJKER
         </Link>
       </Text>
       <Text className={styles.text}>•</Text>
       <Link
-        href="https://github.com/sabrish/power-platform-solution-blueprint"
+        href="https://github.com/njker/power-platform-solution-blueprint"
         target="_blank"
         rel="noopener noreferrer"
         className={styles.iconLink}
@@ -59,6 +59,15 @@ export function Footer() {
         <Open20Regular />
         <span>GitHub</span>
       </Link>
+      <Text className={styles.text}>Forked from:</Text>
+      <Link
+        href="https://github.com/sabrish/power-platform-solution-blueprint"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.iconLink}
+      >
+        <Open20Regular />
+        <span>GitHub</span></Link>
     </footer>
   );
 }

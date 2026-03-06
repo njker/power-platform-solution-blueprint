@@ -111,15 +111,10 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     gap: tokens.spacingVerticalM,
   },
-  checkboxContainer: {
-    marginTop: tokens.spacingVerticalL,
-    paddingTop: tokens.spacingVerticalL,
-    borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
-  },
   buttonContainer: {
-    marginTop: tokens.spacingVerticalXXL,
     display: 'flex',
     justifyContent: 'flex-end',
+    gap: tokens.spacingHorizontalM,
   },
   loadingContainer: {
     display: 'flex',
@@ -533,48 +528,47 @@ export function ScopeSelector({ onScopeSelected, onCancel }: ScopeSelectorProps)
           </RadioGroup>
         </div>
 
-      </div>
+        {/* Options Checkboxes */}
+        <div className={`${styles.section} enhanced-card`}>
+          <Text as="h3" size={500} weight="semibold" style={{ marginBottom: tokens.spacingVerticalM, display: 'block' }}>Additional Settings</Text>
+          <div>
+            <Tooltip
+              content="Include Microsoft-owned entities like Account, Contact, Opportunity, etc. (only if they are in the selected solutions)"
+              relationship="description"
+            >
+              <Checkbox
+                label="Include system-owned entities"
+                checked={includeSystem}
+                onChange={(_, data) => setIncludeSystem(data.checked === true)}
+              />
+            </Tooltip>
+          </div>
 
-      {/* Options Checkboxes */}
-      <div className={`${styles.checkboxContainer} enhanced-card`} style={{ marginTop: '0', borderTop: 'none', padding: tokens.spacingVerticalXL }}>
-        <Text as="h3" size={500} weight="semibold" style={{ marginBottom: tokens.spacingVerticalM, display: 'block' }}>Additional Settings</Text>
-        <div>
-          <Tooltip
-            content="Include Microsoft-owned entities like Account, Contact, Opportunity, etc. (only if they are in the selected solutions)"
-            relationship="description"
-          >
-            <Checkbox
-              label="Include system-owned entities"
-              checked={includeSystem}
-              onChange={(_, data) => setIncludeSystem(data.checked === true)}
-            />
-          </Tooltip>
+          <div style={{ marginTop: tokens.spacingVerticalM }}>
+            <Tooltip
+              content="Include common system fields like createdon, createdby, modifiedon, modifiedby, ownerid, statecode, statuscode, etc."
+              relationship="description"
+            >
+              <Checkbox
+                label="Include system fields (createdon, modifiedby, etc.)"
+                checked={includeSystemFields}
+                onChange={(_, data) => setIncludeSystemFields(data.checked === true)}
+              />
+            </Tooltip>
+          </div>
         </div>
 
-        <div style={{ marginTop: tokens.spacingVerticalM }}>
-          <Tooltip
-            content="Include common system fields like createdon, createdby, modifiedon, modifiedby, ownerid, statecode, statuscode, etc."
-            relationship="description"
-          >
-            <Checkbox
-              label="Include system fields (createdon, modifiedby, etc.)"
-              checked={includeSystemFields}
-              onChange={(_, data) => setIncludeSystemFields(data.checked === true)}
-            />
-          </Tooltip>
-        </div>
-      </div>
-
-      {/* Continue Button */}
-      <div className={styles.buttonContainer}>
-        {onCancel && (
-          <Button size="large" appearance="secondary" onClick={onCancel} style={{ marginRight: '8px' }}>
-            Cancel
+        {/* Continue Button */}
+        <div className={styles.buttonContainer}>
+          {onCancel && (
+            <Button size="large" appearance="secondary" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
+          <Button size="large" appearance="primary" onClick={handleContinue} disabled={!isValidSelection()}>
+            Continue
           </Button>
-        )}
-        <Button size="large" appearance="primary" onClick={handleContinue} disabled={!isValidSelection()}>
-          Continue
-        </Button>
+        </div>
       </div>
 
       <Footer />
