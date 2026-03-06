@@ -1364,7 +1364,20 @@ export class BlueprintGenerator {
       }
 
       const discovery = new PowerPagesDiscovery(this.client);
-      const result = await discovery.discover(componentIdFilter);
+      let result = await discovery.discover(componentIdFilter);
+
+      if (this.countPowerPagesArtifacts(result) === 0 && componentIdFilter.size > 0) {
+        const unfilteredResult = await discovery.discover();
+        if (this.countPowerPagesArtifacts(unfilteredResult) > 0) {
+          result = {
+            ...unfilteredResult,
+            warnings: [
+              ...unfilteredResult.warnings,
+              'Solution component filtering returned no Power Pages artefacts, so environment-wide Power Pages discovery was used.',
+            ],
+          };
+        }
+      }
 
       this.reportProgress({
         phase: 'discovering',
