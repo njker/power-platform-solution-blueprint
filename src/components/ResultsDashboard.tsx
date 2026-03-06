@@ -46,6 +46,7 @@ import { ExportDialog } from './ExportDialog';
 import { SecurityRolesView } from './SecurityRolesView';
 import { FieldSecurityProfilesView } from './FieldSecurityProfilesView';
 import { Footer } from './Footer';
+import { PowerPagesList } from './PowerPagesList';
 
 const useStyles = makeStyles({
   container: {
@@ -192,6 +193,7 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
     if (s.totalWebResources > 0) return 'webResources';
     if ((result.securityRoles?.length ?? 0) > 0) return 'securityRoles';
     if ((result.fieldSecurityProfiles?.length ?? 0) > 0) return 'fieldSecurityProfiles';
+    if (s.totalPowerPagesArtifacts > 0) return 'powerPages';
     if (s.totalCustomPages > 0) return 'customPages';
     return 'entities';
   })();
@@ -270,6 +272,8 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
         return (result.fieldSecurityProfiles?.length ?? 0) > 0;
       case 'customPages':
         return result.summary.totalCustomPages > 0;
+      case 'powerPages':
+        return result.summary.totalPowerPagesArtifacts > 0;
       default:
         return false;
     }
@@ -312,6 +316,8 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
         return result.fieldSecurityProfiles?.length ?? 0;
       case 'customPages':
         return result.summary.totalCustomPages;
+      case 'powerPages':
+        return result.summary.totalPowerPagesArtifacts;
       default:
         return 0;
     }
@@ -335,6 +341,7 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
     { key: 'webResources', label: 'Web Resources', icon: '🌐' },
     { key: 'securityRoles', label: 'Security Roles', icon: '🔒' },
     { key: 'fieldSecurityProfiles', label: 'Field Security Profiles', icon: '🛡️' },
+    { key: 'powerPages', label: 'Power Pages', icon: '🧩' },
     { key: 'customPages', label: 'Custom Pages', icon: '📄' },
   ];
 
@@ -602,6 +609,10 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
                     <Title3>Custom Pages</Title3>
                     <Text>Custom pages browser coming soon...</Text>
                   </div>
+                )}
+
+                {selectedTab === 'powerPages' && hasResults('powerPages') && result.powerPages && (
+                  <PowerPagesList powerPages={result.powerPages} />
                 )}
               </div>
             </Card>

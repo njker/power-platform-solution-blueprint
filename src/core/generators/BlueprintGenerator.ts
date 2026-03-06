@@ -12,6 +12,7 @@ import { BusinessRuleDiscovery } from '../discovery/BusinessRuleDiscovery.js';
 import { ClassicWorkflowDiscovery } from '../discovery/ClassicWorkflowDiscovery.js';
 import { FormDiscovery } from '../discovery/FormDiscovery.js';
 import { WebResourceDiscovery } from '../discovery/WebResourceDiscovery.js';
+import { PowerPagesDiscovery } from '../discovery/PowerPagesDiscovery.js';
 import { WorkflowMigrationAnalyzer } from '../analyzers/WorkflowMigrationAnalyzer.js';
 import { ERDGenerator } from '../generators/ERDGenerator.js';
 import { CrossEntityMapper } from '../analyzers/CrossEntityMapper.js';
@@ -37,6 +38,7 @@ import type {
   BusinessRule,
   WebResource,
 } from '../types/blueprint.js';
+import type { PowerPagesInventory } from '../types/powerPages.js';
 
 /**
  * Scope selection for blueprint generation
@@ -182,6 +184,9 @@ export class BlueprintGenerator {
       // STEP 6.13: Process Column Security (Attribute Masking & Column Security Profiles)
       const { attributeMaskingRules, columnSecurityProfiles } = await this.processColumnSecurity();
 
+      // STEP 6.13: Process Power Pages components and analysis
+      const powerPages = await this.processPowerPages(inventory.componentToSolutions);
+
       // STEP 7: Process Forms and JavaScript Event Handlers
       // Pass entities with rootcomponentbehavior info to determine form inclusion
       const forms = await this.processForms(entities, inventory.formIds, inventory.entitiesWithAllSubcomponents);
@@ -266,6 +271,7 @@ export class BlueprintGenerator {
           totalWebResources: 0,
           totalCanvasApps: 0,
           totalCustomPages: 0,
+          totalPowerPagesArtifacts: 0,
         },
         plugins,
         pluginAssemblies,
@@ -286,6 +292,7 @@ export class BlueprintGenerator {
         canvasApps,
         webResources,
         webResourcesByType,
+        powerPages,
       };
       const externalEndpoints = externalDependencyAggregator.aggregateExternalDependencies(blueprintResultPartial);
       this.reportProgress({
@@ -337,6 +344,7 @@ export class BlueprintGenerator {
         totalWebResources: inventory.webResourceIds.length,
         totalCanvasApps: inventory.canvasAppIds.length,
         totalCustomPages: inventory.customPageIds.length,
+        totalPowerPagesArtifacts: this.countPowerPagesArtifacts(powerPages),
       };
 
       // Complete
@@ -389,6 +397,7 @@ export class BlueprintGenerator {
         fieldSecurityProfiles: fieldSecurityProfiles.length > 0 ? fieldSecurityProfiles : undefined,
         attributeMaskingRules: attributeMaskingRules.length > 0 ? attributeMaskingRules : undefined,
         columnSecurityProfiles: columnSecurityProfiles.length > 0 ? columnSecurityProfiles : undefined,
+        powerPages: this.countPowerPagesArtifacts(powerPages) > 0 ? powerPages : undefined,
       };
 
       // Store for export
@@ -1344,8 +1353,9 @@ export class BlueprintGenerator {
   }
 
   /**
-   * Process Canvas Apps
+   * Process Power Pages artefacts and analysis.
    */
+  private async processPowerPages(componentToSolutions: Map<string, string[]>): Promise<PowerPagesInventory> {
   private async processCanvasApps(canvasAppIds: string[]): Promise<CanvasApp[]> {
     if (canvasAppIds.length === 0) {
       return [];
@@ -1356,6 +1366,30 @@ export class BlueprintGenerator {
         phase: 'discovering',
         entityName: '',
         current: 0,
+        total: 1,
+        message: '🌐 Discovering Power Pages artefacts...',
+      });
+
+      const componentIdFilter = new Set<string>();
+      for (const componentId of componentToSolutions.keys()) {
+        componentIdFilter.add(this.normalizeGuid(componentId));
+      }
+
+      const discovery = new PowerPagesDiscovery(this.client);
+      let result = await discovery.discover(componentIdFilter);
+
+      if (this.countPowerPagesArtifacts(result) === 0 && componentIdFilter.size > 0) {
+        const unfilteredResult = await discovery.discover();
+        if (this.countPowerPagesArtifacts(unfilteredResult) > 0) {
+          result = {
+            ...unfilteredResult,
+            warnings: [
+              ...unfilteredResult.warnings,
+              'Solution component filtering returned no Power Pages artefacts, so environment-wide Power Pages discovery was used.',
+            ],
+          };
+        }
+      }
         total: canvasAppIds.length,
         message: `🖼️ Documenting ${canvasAppIds.length} canvas app(s)...`,
       });
@@ -1366,6 +1400,52 @@ export class BlueprintGenerator {
       this.reportProgress({
         phase: 'discovering',
         entityName: '',
+        current: 1,
+        total: 1,
+        message: `🌐 Power Pages discovered: ${this.countPowerPagesArtifacts(result)} artefact(s)`,
+      });
+
+      return result;
+    } catch (error) {
+      console.error('Error processing Power Pages:', error instanceof Error ? error.message : 'Unknown error');
+      return {
+        websites: [],
+        pages: [],
+        webTemplates: [],
+        contentSnippets: [],
+        entityForms: [],
+        entityLists: [],
+        webForms: [],
+        webFormSteps: [],
+        webRoles: [],
+        tablePermissions: [],
+        pageAccessRules: [],
+        siteSettings: [],
+        liquidAnalyses: [],
+        javaScriptAnalyses: [],
+        authProviders: [],
+        apiEndpoints: [],
+        warnings: ['Power Pages discovery failed'],
+      };
+    }
+  }
+
+  private countPowerPagesArtifacts(powerPages: PowerPagesInventory): number {
+    return (
+      powerPages.websites.length +
+      powerPages.pages.length +
+      powerPages.webTemplates.length +
+      powerPages.contentSnippets.length +
+      powerPages.entityForms.length +
+      powerPages.entityLists.length +
+      powerPages.webForms.length +
+      powerPages.webFormSteps.length +
+      powerPages.webRoles.length +
+      powerPages.tablePermissions.length +
+      powerPages.pageAccessRules.length
+    );
+  }
+
         current: apps.length,
         total: canvasAppIds.length,
         message: `🖼️ Documented ${apps.length} canvas app(s)`,

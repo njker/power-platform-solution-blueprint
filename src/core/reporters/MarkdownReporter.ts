@@ -253,6 +253,7 @@ export class MarkdownReporter {
     items.push(`**${result.summary.totalConnectionReferences}** Connection References`);
     items.push(`**${result.summary.totalSecurityRoles}** Security Roles`);
     items.push(`**${result.summary.totalFieldSecurityProfiles}** Field Security Profiles`);
+    items.push(`**${result.summary.totalPowerPagesArtifacts}** Power Pages Artefacts`);
 
     return MarkdownFormatter.formatList(items);
   }
@@ -354,6 +355,7 @@ export class MarkdownReporter {
       ['Field Security Profiles', result.summary.totalFieldSecurityProfiles.toString()],
       ['Canvas Apps', result.summary.totalCanvasApps.toString()],
       ['Custom Pages', result.summary.totalCustomPages.toString()],
+      ['Power Pages Artefacts', result.summary.totalPowerPagesArtifacts.toString()],
     ];
     sections.push(MarkdownFormatter.formatTable(headers, rows));
     sections.push('');

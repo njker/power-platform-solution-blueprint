@@ -17,6 +17,24 @@ export { CUSTOM_CONNECTOR_TYPE_COLORS } from './types/customConnector.js';
 export type { CanvasApp } from './types/canvasApp.js';
 export type { PluginAssembly, RecoveredPluginAssembly } from './types/pluginAssembly.js';
 export type {
+  PowerPagesInventory,
+  PowerPagesWebsite,
+  PowerPagesPage,
+  PowerPagesWebTemplate,
+  PowerPagesContentSnippet,
+  PowerPagesEntityForm,
+  PowerPagesEntityList,
+  PowerPagesWebForm,
+  PowerPagesWebFormStep,
+  PowerPagesWebRole,
+  PowerPagesTablePermission,
+  PowerPagesPageAccessRule,
+  PowerPagesSiteSetting,
+  PowerPagesLiquidAnalysis,
+  PowerPagesJavaScriptAnalysis,
+  PowerPagesAuthProvider,
+  PowerPagesApiEndpoint,
+} from './types/powerPages.js';
   BaselineChangeType,
   BaselineRiskLevel,
   BaselineCountComparison,
@@ -100,6 +118,7 @@ export { EnvironmentVariableDiscovery } from './discovery/EnvironmentVariableDis
 export { ConnectionReferenceDiscovery } from './discovery/ConnectionReferenceDiscovery.js';
 export { GlobalChoiceDiscovery } from './discovery/GlobalChoiceDiscovery.js';
 export { CustomConnectorDiscovery } from './discovery/CustomConnectorDiscovery.js';
+export { PowerPagesDiscovery } from './discovery/PowerPagesDiscovery.js';
 export { CanvasAppDiscovery } from './discovery/CanvasAppDiscovery.js';
 export { FieldSecurityProfileDiscovery } from './discovery/FieldSecurityProfileDiscovery.js';
 export type {

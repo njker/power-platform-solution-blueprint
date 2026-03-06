@@ -79,6 +79,7 @@ export class JsonReporter {
       fieldSecurityProfiles: result.fieldSecurityProfiles,
       attributeMaskingRules: result.attributeMaskingRules,
       columnSecurityProfiles: result.columnSecurityProfiles,
+      powerPages: result.powerPages,
     };
   }
 
