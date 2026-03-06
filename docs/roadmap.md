@@ -80,12 +80,12 @@ Future development plans for Power Platform Solution Blueprint
 
 ### Power Pages
 
-- Page inventory (pages, templates, content snippets)
-- Portal components (entity forms, lists, web forms)
-- Liquid template complexity analysis
-- JavaScript analysis and external calls
-- Security (web roles, permissions, table permissions)
-- Integration points (auth providers, APIs)
+- [x] Page inventory (pages, templates, content snippets) - phase 1 beta
+- [x] Portal components (entity forms, lists, web forms) - phase 1 beta
+- [x] Liquid template complexity analysis - phase 1 beta
+- [x] JavaScript analysis and external calls - phase 1 beta
+- [x] Security (web roles, permissions, table permissions) - phase 1 beta
+- [x] Integration points (auth providers, APIs) - phase 1 beta
 
 ### Customer Insights & Marketing
 

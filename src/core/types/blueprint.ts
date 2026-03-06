@@ -5,6 +5,7 @@ import type { PluginStep } from '../types.js';
 import type { EntityFieldSecurity } from '../discovery/FieldSecurityProfileDiscovery.js';
 import type { SecurityRoleDetail } from '../discovery/SecurityRoleDiscovery.js';
 import type { PluginAssembly } from './pluginAssembly.js';
+import type { PowerPagesInventory } from './powerPages.js';
 
 /**
  * Progress phases during blueprint generation
@@ -478,6 +479,7 @@ export interface BlueprintSummary {
   totalWebResources: number;
   totalCanvasApps: number;
   totalCustomPages: number;
+  totalPowerPagesArtifacts: number;
 }
 
 /**
@@ -690,6 +692,7 @@ export interface BlueprintResult {
   fieldSecurityProfiles?: import('../discovery/FieldSecurityProfileDiscovery.js').FieldSecurityProfile[];
   attributeMaskingRules?: import('../discovery/ColumnSecurityDiscovery.js').AttributeMaskingRule[];
   columnSecurityProfiles?: import('../discovery/ColumnSecurityDiscovery.js').ColumnSecurityProfile[];
+  powerPages?: PowerPagesInventory;
 }
 
 /**
