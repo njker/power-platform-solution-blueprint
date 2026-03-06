@@ -1356,11 +1356,6 @@ export class BlueprintGenerator {
    * Process Power Pages artefacts and analysis.
    */
   private async processPowerPages(componentToSolutions: Map<string, string[]>): Promise<PowerPagesInventory> {
-  private async processCanvasApps(canvasAppIds: string[]): Promise<CanvasApp[]> {
-    if (canvasAppIds.length === 0) {
-      return [];
-    }
-
     try {
       this.reportProgress({
         phase: 'discovering',
@@ -1390,12 +1385,6 @@ export class BlueprintGenerator {
           };
         }
       }
-        total: canvasAppIds.length,
-        message: `🖼️ Documenting ${canvasAppIds.length} canvas app(s)...`,
-      });
-
-      const discovery = new CanvasAppDiscovery(this.client);
-      const apps = await discovery.getCanvasAppsByIds(canvasAppIds);
 
       this.reportProgress({
         phase: 'discovering',
@@ -1446,6 +1435,29 @@ export class BlueprintGenerator {
     );
   }
 
+  /**
+   * Process Canvas Apps
+   */
+  private async processCanvasApps(canvasAppIds: string[]): Promise<CanvasApp[]> {
+    if (canvasAppIds.length === 0) {
+      return [];
+    }
+
+    try {
+      this.reportProgress({
+        phase: 'discovering',
+        entityName: '',
+        current: 0,
+        total: canvasAppIds.length,
+        message: `🖼️ Documenting ${canvasAppIds.length} canvas app(s)...`,
+      });
+
+      const discovery = new CanvasAppDiscovery(this.client);
+      const apps = await discovery.getCanvasAppsByIds(canvasAppIds);
+
+      this.reportProgress({
+        phase: 'discovering',
+        entityName: '',
         current: apps.length,
         total: canvasAppIds.length,
         message: `🖼️ Documented ${apps.length} canvas app(s)`,

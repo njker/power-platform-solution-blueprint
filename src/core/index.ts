@@ -35,6 +35,7 @@ export type {
   PowerPagesAuthProvider,
   PowerPagesApiEndpoint,
 } from './types/powerPages.js';
+export type {
   BaselineChangeType,
   BaselineRiskLevel,
   BaselineCountComparison,
