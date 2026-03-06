@@ -55,6 +55,27 @@ export class CanvasAppDiscovery {
       rows.push(...result.value);
     }
 
+    return this.mapRows(rows);
+  }
+
+  async getAllCanvasApps(): Promise<CanvasApp[]> {
+    const result = await this.client.query<RawCanvasApp>('canvasapps', {
+      select: [
+        'canvasappid',
+        'name',
+        'displayname',
+        'createdon',
+        'modifiedon',
+        'statecode',
+        '_ownerid_value',
+      ],
+      orderBy: ['name asc'],
+    });
+
+    return this.mapRows(result.value);
+  }
+
+  private mapRows(rows: RawCanvasApp[]): CanvasApp[] {
     return rows
       .map((row) => ({
         id: row.canvasappid,

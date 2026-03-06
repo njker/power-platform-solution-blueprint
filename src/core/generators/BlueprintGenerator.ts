@@ -342,7 +342,7 @@ export class BlueprintGenerator {
         totalCustomConnectors: inventory.customConnectorIds.length,
         totalAttributes: entityBlueprints.reduce((sum, bp) => sum + (bp.entity.Attributes?.length || 0), 0),
         totalWebResources: inventory.webResourceIds.length,
-        totalCanvasApps: inventory.canvasAppIds.length,
+        totalCanvasApps: canvasApps.length,
         totalCustomPages: inventory.customPageIds.length,
         totalPowerPagesArtifacts: this.countPowerPagesArtifacts(powerPages),
       };
@@ -1453,7 +1453,14 @@ export class BlueprintGenerator {
       });
 
       const discovery = new CanvasAppDiscovery(this.client);
-      const apps = await discovery.getCanvasAppsByIds(canvasAppIds);
+      let apps = await discovery.getCanvasAppsByIds(canvasAppIds);
+
+      if (apps.length === 0 && canvasAppIds.length > 0) {
+        const unfilteredApps = await discovery.getAllCanvasApps();
+        if (unfilteredApps.length > 0) {
+          apps = unfilteredApps;
+        }
+      }
 
       this.reportProgress({
         phase: 'discovering',
