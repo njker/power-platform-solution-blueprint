@@ -6,6 +6,7 @@ import type { EntityFieldSecurity } from '../discovery/FieldSecurityProfileDisco
 import type { SecurityRoleDetail } from '../discovery/SecurityRoleDiscovery.js';
 import type { PluginAssembly } from './pluginAssembly.js';
 import type { PowerPagesInventory } from './powerPages.js';
+import type { CanvasApp } from './canvasApp.js';
 
 /**
  * Progress phases during blueprint generation
@@ -682,6 +683,7 @@ export interface BlueprintResult {
   connectionReferences: import('./connectionReference.js').ConnectionReference[];
   globalChoices: import('./globalChoice.js').GlobalChoice[];
   customConnectors: import('./customConnector.js').CustomConnector[];
+  canvasApps: CanvasApp[];
   webResources: WebResource[];
   webResourcesByType: Map<string, WebResource[]>;
   erd?: ERDDefinition;
