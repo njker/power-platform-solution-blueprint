@@ -14,7 +14,16 @@ export type { GlobalChoice, GlobalChoiceOption } from './types/globalChoice.js';
 export { GLOBAL_CHOICE_STATUS_COLORS } from './types/globalChoice.js';
 export type { CustomConnector } from './types/customConnector.js';
 export { CUSTOM_CONNECTOR_TYPE_COLORS } from './types/customConnector.js';
+export type { CanvasApp } from './types/canvasApp.js';
 export type { PluginAssembly, RecoveredPluginAssembly } from './types/pluginAssembly.js';
+export type {
+  BaselineChangeType,
+  BaselineRiskLevel,
+  BaselineCountComparison,
+  BaselineChange,
+  BaselineRiskSummary,
+  BaselineComparisonResult,
+} from './types/baselineComparison.js';
 export type {
   ProgressPhase,
   ProgressInfo,
@@ -91,6 +100,7 @@ export { EnvironmentVariableDiscovery } from './discovery/EnvironmentVariableDis
 export { ConnectionReferenceDiscovery } from './discovery/ConnectionReferenceDiscovery.js';
 export { GlobalChoiceDiscovery } from './discovery/GlobalChoiceDiscovery.js';
 export { CustomConnectorDiscovery } from './discovery/CustomConnectorDiscovery.js';
+export { CanvasAppDiscovery } from './discovery/CanvasAppDiscovery.js';
 export { FieldSecurityProfileDiscovery } from './discovery/FieldSecurityProfileDiscovery.js';
 export type {
   FieldSecurityProfile,
@@ -124,6 +134,12 @@ export type { ScopeSelection as BlueprintScope } from './generators/BlueprintGen
 export { ExecutionOrderCalculator } from './analyzers/ExecutionOrderCalculator.js';
 export { PerformanceAnalyzer } from './analyzers/PerformanceAnalyzer.js';
 export { WorkflowMigrationAnalyzer } from './analyzers/WorkflowMigrationAnalyzer.js';
+export {
+  parseBaselineBlueprintJson,
+  compareWithBaseline,
+  generateBaselineChangeLogMarkdown,
+} from './analyzers/BaselineComparator.js';
+export type { BlueprintExportLike } from './analyzers/BaselineComparator.js';
 
 // Reporters
 export { HtmlReporter } from './reporters/HtmlReporter.js';
