@@ -7,6 +7,7 @@ import { SchemaDiscovery } from '../discovery/SchemaDiscovery.js';
 import { PluginDiscovery } from '../discovery/PluginDiscovery.js';
 import { PluginAssemblyDiscovery } from '../discovery/PluginAssemblyDiscovery.js';
 import { CanvasAppDiscovery } from '../discovery/CanvasAppDiscovery.js';
+import { PowerAppsDiscovery } from '../discovery/PowerAppsDiscovery.js';
 import { FlowDiscovery } from '../discovery/FlowDiscovery.js';
 import { BusinessRuleDiscovery } from '../discovery/BusinessRuleDiscovery.js';
 import { ClassicWorkflowDiscovery } from '../discovery/ClassicWorkflowDiscovery.js';
@@ -28,6 +29,7 @@ import { ZipPackager } from '../exporters/ZipPackager.js';
 import type { EntityMetadata, PluginStep, Publisher, Solution } from '../types.js';
 import type { PluginAssembly } from '../types/pluginAssembly.js';
 import type { CanvasApp } from '../types/canvasApp.js';
+import type { PowerAppsInventory } from '../types/powerApp.js';
 import type { ComponentInventory, ComponentInventoryWithSolutions, WorkflowInventory } from '../types/components.js';
 import type {
   GeneratorOptions,
@@ -172,19 +174,26 @@ export class BlueprintGenerator {
       // STEP 6.10: Process Canvas Apps
       const canvasApps = await this.processCanvasApps(inventory.canvasAppIds);
 
-      // STEP 6.11: Process Security Roles
+      // STEP 6.11: Process Power Apps (model-driven app inventory)
+      const powerApps = await this.processPowerApps(
+        inventory.appModuleIds,
+        inventory.customPageIds.length,
+        inventory.formIds.length
+      );
+
+      // STEP 6.12: Process Security Roles
       const securityRoles = await this.processSecurityRoles(inventory.securityRoleIds);
 
-      // STEP 6.12: Process Field Security Profiles
+      // STEP 6.13: Process Field Security Profiles
       const { profiles: fieldSecurityProfiles, fieldSecurityByEntity } = await this.processFieldSecurityProfiles(
         inventory.fieldSecurityProfileIds,
         entities.map((e) => e.LogicalName)
       );
 
-      // STEP 6.13: Process Column Security (Attribute Masking & Column Security Profiles)
+      // STEP 6.14: Process Column Security (Attribute Masking & Column Security Profiles)
       const { attributeMaskingRules, columnSecurityProfiles } = await this.processColumnSecurity();
 
-      // STEP 6.13: Process Power Pages components and analysis
+      // STEP 6.15: Process Power Pages components and analysis
       const powerPages = await this.processPowerPages(inventory.componentToSolutions);
 
       // STEP 7: Process Forms and JavaScript Event Handlers
@@ -272,6 +281,7 @@ export class BlueprintGenerator {
           totalCanvasApps: 0,
           totalCustomPages: 0,
           totalPowerPagesArtifacts: 0,
+          totalPowerApps: 0,
         },
         plugins,
         pluginAssemblies,
@@ -290,6 +300,7 @@ export class BlueprintGenerator {
         globalChoices,
         customConnectors,
         canvasApps,
+        powerApps,
         webResources,
         webResourcesByType,
         powerPages,
@@ -345,6 +356,7 @@ export class BlueprintGenerator {
         totalCanvasApps: canvasApps.length,
         totalCustomPages: inventory.customPageIds.length,
         totalPowerPagesArtifacts: this.countPowerPagesArtifacts(powerPages),
+        totalPowerApps: powerApps.modelDrivenApps.length,
       };
 
       // Complete
@@ -387,6 +399,7 @@ export class BlueprintGenerator {
         globalChoices,
         customConnectors,
         canvasApps,
+        powerApps: this.countPowerAppsArtifacts(powerApps) > 0 ? powerApps : undefined,
         webResources,
         webResourcesByType,
         erd,
@@ -540,6 +553,7 @@ export class BlueprintGenerator {
       inventory.pluginAssemblyIds.length === 0 &&
       inventory.workflowIds.length === 0 &&
       inventory.webResourceIds.length === 0 &&
+      inventory.appModuleIds.length === 0 &&
       inventory.canvasAppIds.length === 0 &&
       inventory.customPageIds.length === 0 &&
       inventory.connectionReferenceIds.length === 0 &&
@@ -571,6 +585,9 @@ export class BlueprintGenerator {
     }
     if (inventory.webResourceIds.length > 0) {
       parts.push(`${inventory.webResourceIds.length} web resources`);
+    }
+    if (inventory.appModuleIds.length > 0) {
+      parts.push(`${inventory.appModuleIds.length} model-driven apps`);
     }
     if (inventory.canvasAppIds.length > 0) {
       parts.push(`${inventory.canvasAppIds.length} canvas apps`);
@@ -1432,6 +1449,75 @@ export class BlueprintGenerator {
       powerPages.webRoles.length +
       powerPages.tablePermissions.length +
       powerPages.pageAccessRules.length
+    );
+  }
+
+  /**
+   * Process Power Apps inventory.
+   */
+  private async processPowerApps(
+    appModuleIds: string[],
+    customPageCount: number,
+    entityFormCount: number
+  ): Promise<PowerAppsInventory> {
+    const discovery = new PowerAppsDiscovery(this.client);
+    const warnings: string[] = [];
+
+    try {
+      this.reportProgress({
+        phase: 'discovering',
+        entityName: '',
+        current: 0,
+        total: Math.max(appModuleIds.length, 1),
+        message: 'Discovering Power Apps inventory...',
+      });
+
+      let modelDrivenApps = await discovery.getModelDrivenAppsByIds(appModuleIds);
+
+      if (modelDrivenApps.length === 0 && appModuleIds.length > 0) {
+        const unfilteredApps = await discovery.getAllModelDrivenApps();
+        if (unfilteredApps.length > 0) {
+          modelDrivenApps = unfilteredApps;
+          warnings.push('Scoped model-driven app filtering returned no records, so environment-wide model-driven app discovery was used.');
+        }
+      }
+
+      this.reportProgress({
+        phase: 'discovering',
+        entityName: '',
+        current: modelDrivenApps.length,
+        total: Math.max(appModuleIds.length, modelDrivenApps.length, 1),
+        message: `Discovered ${modelDrivenApps.length} model-driven app(s)`,
+      });
+
+      return {
+        modelDrivenApps,
+        customPageCount,
+        entityFormCount,
+        dashboardCount: 0,
+        viewCount: 0,
+        warnings,
+      };
+    } catch (error) {
+      console.error('Error processing Power Apps:', error instanceof Error ? error.message : 'Unknown error');
+      return {
+        modelDrivenApps: [],
+        customPageCount,
+        entityFormCount,
+        dashboardCount: 0,
+        viewCount: 0,
+        warnings: ['Power Apps discovery failed'],
+      };
+    }
+  }
+
+  private countPowerAppsArtifacts(powerApps: PowerAppsInventory): number {
+    return (
+      powerApps.modelDrivenApps.length +
+      powerApps.customPageCount +
+      powerApps.entityFormCount +
+      powerApps.dashboardCount +
+      powerApps.viewCount
     );
   }
 

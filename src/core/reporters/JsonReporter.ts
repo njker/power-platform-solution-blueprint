@@ -69,6 +69,7 @@ export class JsonReporter {
       globalChoices: result.globalChoices,
       customConnectors: result.customConnectors,
       canvasApps: result.canvasApps,
+      powerApps: result.powerApps,
       webResources: result.webResources,
       webResourcesByType: this.mapToObject(result.webResourcesByType),
       erd: result.erd,

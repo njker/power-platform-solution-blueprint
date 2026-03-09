@@ -113,7 +113,11 @@ Future development plans for Power Platform Solution Blueprint
 
 **Power Automate**: Desktop flows, Process Advisor, approvals, AI Builder actions, custom connectors, shared flows
 
-**Power Apps**: Canvas apps (screens, controls, formulas), model-driven apps (modules, forms, views, dashboards), component libraries, PCF controls
+**Power Apps**
+- [x] Phase 1: Model-driven app inventory (modules in selected scope)
+- [ ] Forms, views, and dashboards composition
+- [ ] Component libraries
+- [ ] PCF controls
 
 **Dynamics 365**: Sales (scoring, forecasting), Customer Service (routing, SLA), Field Service (work orders, scheduling), Project Operations
 

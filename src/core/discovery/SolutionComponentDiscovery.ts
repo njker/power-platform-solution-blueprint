@@ -49,6 +49,7 @@ export class SolutionComponentDiscovery {
         workflowIds: [],
         webResourceIds: [],
         formIds: [],
+        appModuleIds: [],
         canvasAppIds: [],
         customPageIds: [],
         connectionReferenceIds: [],
@@ -174,6 +175,11 @@ export class SolutionComponentDiscovery {
                 inventory.formIds.push(objectId);
               }
               break;
+            case ComponentType.AppModule:
+              if (!inventory.appModuleIds.includes(objectId)) {
+                inventory.appModuleIds.push(objectId);
+              }
+              break;
             case ComponentType.CanvasApp:
               if (!inventory.canvasAppIds.includes(objectId)) {
                 inventory.canvasAppIds.push(objectId);
@@ -235,6 +241,7 @@ export class SolutionComponentDiscovery {
       workflowIds: [],
       webResourceIds: [],
       formIds: [],
+      appModuleIds: [],
       canvasAppIds: [],
       customPageIds: [],
       connectionReferenceIds: [],
@@ -276,6 +283,12 @@ export class SolutionComponentDiscovery {
         select: ['customapiid'],
       });
       inventory.customApiIds = customApisResult.value.map(c => c.customapiid.toLowerCase().replace(/[{}]/g, ''));
+
+      // Query model-driven apps - all
+      const appModulesResult = await this.client.query<{ appmoduleid: string }>('appmodules', {
+        select: ['appmoduleid'],
+      });
+      inventory.appModuleIds = appModulesResult.value.map(a => a.appmoduleid.toLowerCase().replace(/[{}]/g, ''));
 
       // Query environment variables - all
       const envVarsResult = await this.client.query<{ environmentvariabledefinitionid: string }>('environmentvariabledefinitions', {

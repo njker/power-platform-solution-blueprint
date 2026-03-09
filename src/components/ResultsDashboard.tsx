@@ -47,6 +47,7 @@ import { SecurityRolesView } from './SecurityRolesView';
 import { FieldSecurityProfilesView } from './FieldSecurityProfilesView';
 import { Footer } from './Footer';
 import { PowerPagesList } from './PowerPagesList';
+import { PowerAppsList } from './PowerAppsList';
 
 const useStyles = makeStyles({
   container: {
@@ -190,6 +191,7 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
     if (s.totalGlobalChoices > 0) return 'globalChoices';
     if (s.totalCustomConnectors > 0) return 'customConnectors';
     if (s.totalCanvasApps > 0) return 'canvasApps';
+    if (s.totalPowerApps > 0) return 'powerApps';
     if (s.totalWebResources > 0) return 'webResources';
     if ((result.securityRoles?.length ?? 0) > 0) return 'securityRoles';
     if ((result.fieldSecurityProfiles?.length ?? 0) > 0) return 'fieldSecurityProfiles';
@@ -264,6 +266,8 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
         return result.summary.totalCustomConnectors > 0;
       case 'canvasApps':
         return result.summary.totalCanvasApps > 0;
+      case 'powerApps':
+        return result.summary.totalPowerApps > 0;
       case 'webResources':
         return result.summary.totalWebResources > 0;
       case 'securityRoles':
@@ -308,6 +312,8 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
         return result.summary.totalCustomConnectors;
       case 'canvasApps':
         return result.summary.totalCanvasApps;
+      case 'powerApps':
+        return result.summary.totalPowerApps;
       case 'webResources':
         return result.summary.totalWebResources;
       case 'securityRoles':
@@ -338,6 +344,7 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
     { key: 'globalChoices', label: 'Global Choices', icon: '🎯' },
     { key: 'customConnectors', label: 'Custom Connectors', icon: '🔀' },
     { key: 'canvasApps', label: 'Canvas Apps', icon: '🖼️' },
+    { key: 'powerApps', label: 'Power Apps', icon: '📱' },
     { key: 'webResources', label: 'Web Resources', icon: '🌐' },
     { key: 'securityRoles', label: 'Security Roles', icon: '🔒' },
     { key: 'fieldSecurityProfiles', label: 'Field Security Profiles', icon: '🛡️' },
@@ -585,6 +592,10 @@ export function ResultsDashboard({ result, scope, blueprintGenerator, onStartOve
 
             {selectedTab === 'canvasApps' && hasResults('canvasApps') && (
               <CanvasAppsList canvasApps={result.canvasApps} />
+            )}
+
+            {selectedTab === 'powerApps' && hasResults('powerApps') && result.powerApps && (
+              <PowerAppsList powerApps={result.powerApps} />
             )}
 
             {selectedTab === 'webResources' && hasResults('webResources') && (

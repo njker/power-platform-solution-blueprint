@@ -254,6 +254,7 @@ export class MarkdownReporter {
     items.push(`**${result.summary.totalSecurityRoles}** Security Roles`);
     items.push(`**${result.summary.totalFieldSecurityProfiles}** Field Security Profiles`);
     items.push(`**${result.summary.totalPowerPagesArtifacts}** Power Pages Artefacts`);
+    items.push(`**${result.summary.totalPowerApps}** Power Apps Artefacts`);
 
     return MarkdownFormatter.formatList(items);
   }
@@ -354,6 +355,7 @@ export class MarkdownReporter {
       ['Security Roles', result.summary.totalSecurityRoles.toString()],
       ['Field Security Profiles', result.summary.totalFieldSecurityProfiles.toString()],
       ['Canvas Apps', result.summary.totalCanvasApps.toString()],
+      ['Power Apps Artefacts', result.summary.totalPowerApps.toString()],
       ['Custom Pages', result.summary.totalCustomPages.toString()],
       ['Power Pages Artefacts', result.summary.totalPowerPagesArtifacts.toString()],
     ];

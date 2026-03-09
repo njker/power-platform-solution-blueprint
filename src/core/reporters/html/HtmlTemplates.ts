@@ -195,6 +195,10 @@ ${items}
       <div class="card-label">Web Resources</div>
     </div>
     <div class="summary-card">
+      <div class="card-number">${summary.totalPowerApps}</div>
+      <div class="card-label">Power Apps</div>
+    </div>
+    <div class="summary-card">
       <div class="card-number">${summary.totalCustomAPIs}</div>
       <div class="card-label">Custom APIs</div>
     </div>
