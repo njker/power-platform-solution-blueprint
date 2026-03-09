@@ -15,7 +15,14 @@ export { GLOBAL_CHOICE_STATUS_COLORS } from './types/globalChoice.js';
 export type { CustomConnector } from './types/customConnector.js';
 export { CUSTOM_CONNECTOR_TYPE_COLORS } from './types/customConnector.js';
 export type { CanvasApp } from './types/canvasApp.js';
-export type { ModelDrivenApp, PowerAppsInventory } from './types/powerApp.js';
+export type {
+  ModelDrivenApp,
+  PowerAppsInventory,
+  PowerAppView,
+  PowerAppDashboard,
+  PowerAppComponentLibrary,
+  PcfControl,
+} from './types/powerApp.js';
 export type { PluginAssembly, RecoveredPluginAssembly } from './types/pluginAssembly.js';
 export type {
   PowerPagesInventory,

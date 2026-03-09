@@ -15,6 +15,8 @@ export interface ComponentInventory {
   webResourceIds: string[];
   formIds: string[];
   appModuleIds: string[];
+  savedQueryIds: string[];
+  customControlIds: string[];
   canvasAppIds: string[];
   customPageIds: string[];
   connectionReferenceIds: string[];
@@ -68,6 +70,7 @@ export enum ComponentType {
   Workflow = 29,
   SystemForm = 60,  // Forms (Main, Quick Create, Quick View, Card)
   WebResource = 61,
+  CustomControl = 66,
   FieldSecurityProfile = 70,
   AppModule = 80,
   PluginType = 90,

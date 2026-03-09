@@ -50,6 +50,8 @@ export class SolutionComponentDiscovery {
         webResourceIds: [],
         formIds: [],
         appModuleIds: [],
+        savedQueryIds: [],
+        customControlIds: [],
         canvasAppIds: [],
         customPageIds: [],
         connectionReferenceIds: [],
@@ -170,6 +172,16 @@ export class SolutionComponentDiscovery {
                 inventory.webResourceIds.push(objectId);
               }
               break;
+            case 26:
+              if (!inventory.savedQueryIds.includes(objectId)) {
+                inventory.savedQueryIds.push(objectId);
+              }
+              break;
+            case ComponentType.CustomControl:
+              if (!inventory.customControlIds.includes(objectId)) {
+                inventory.customControlIds.push(objectId);
+              }
+              break;
             case ComponentType.SystemForm:
               if (!inventory.formIds.includes(objectId)) {
                 inventory.formIds.push(objectId);
@@ -242,6 +254,8 @@ export class SolutionComponentDiscovery {
       webResourceIds: [],
       formIds: [],
       appModuleIds: [],
+      savedQueryIds: [],
+      customControlIds: [],
       canvasAppIds: [],
       customPageIds: [],
       connectionReferenceIds: [],
@@ -289,6 +303,16 @@ export class SolutionComponentDiscovery {
         select: ['appmoduleid'],
       });
       inventory.appModuleIds = appModulesResult.value.map(a => a.appmoduleid.toLowerCase().replace(/[{}]/g, ''));
+
+      const savedQueriesResult = await this.client.query<{ savedqueryid: string }>('savedqueries', {
+        select: ['savedqueryid'],
+      });
+      inventory.savedQueryIds = savedQueriesResult.value.map(v => v.savedqueryid.toLowerCase().replace(/[{}]/g, ''));
+
+      const customControlsResult = await this.client.query<{ customcontrolid: string }>('customcontrols', {
+        select: ['customcontrolid'],
+      });
+      inventory.customControlIds = customControlsResult.value.map(c => c.customcontrolid.toLowerCase().replace(/[{}]/g, ''));
 
       // Query environment variables - all
       const envVarsResult = await this.client.query<{ environmentvariabledefinitionid: string }>('environmentvariabledefinitions', {

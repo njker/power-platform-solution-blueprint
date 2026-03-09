@@ -5,6 +5,8 @@ interface RawCanvasApp {
   canvasappid: string;
   name?: string | null;
   displayname?: string | null;
+  canvasapptype?: number | null;
+  'canvasapptype@OData.Community.Display.V1.FormattedValue'?: string;
   createdon?: string | null;
   modifiedon?: string | null;
   '_ownerid_value@OData.Community.Display.V1.FormattedValue'?: string;
@@ -43,6 +45,7 @@ export class CanvasAppDiscovery {
           'canvasappid',
           'name',
           'displayname',
+          'canvasapptype',
           'createdon',
           'modifiedon',
           'statecode',
@@ -64,6 +67,7 @@ export class CanvasAppDiscovery {
         'canvasappid',
         'name',
         'displayname',
+        'canvasapptype',
         'createdon',
         'modifiedon',
         'statecode',
@@ -81,6 +85,8 @@ export class CanvasAppDiscovery {
         id: row.canvasappid,
         name: row.name || row.displayname || row.canvasappid,
         displayName: row.displayname || row.name || row.canvasappid,
+        canvasAppType: row.canvasapptype ?? null,
+        canvasAppTypeName: row['canvasapptype@OData.Community.Display.V1.FormattedValue'] || this.toCanvasAppTypeName(row.canvasapptype),
         createdOn: row.createdon || null,
         modifiedOn: row.modifiedon || null,
         ownerName: row['_ownerid_value@OData.Community.Display.V1.FormattedValue'] || null,
@@ -96,6 +102,13 @@ export class CanvasAppDiscovery {
   private toStateName(stateCode: number | null | undefined): string {
     if (stateCode === 0) return 'Active';
     if (stateCode === 1) return 'Inactive';
+    return 'Unknown';
+  }
+
+  private toCanvasAppTypeName(canvasAppType: number | null | undefined): string {
+    if (canvasAppType === 0) return 'Canvas App';
+    if (canvasAppType === 1) return 'Component Library';
+    if (canvasAppType === 2) return 'Custom Page';
     return 'Unknown';
   }
 }

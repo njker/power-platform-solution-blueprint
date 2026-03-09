@@ -59,10 +59,12 @@ export function PowerAppsList({ powerApps }: PowerAppsListProps) {
   const styles = useStyles();
   const totalArtifacts =
     powerApps.modelDrivenApps.length +
+    powerApps.views.length +
+    powerApps.dashboards.length +
+    powerApps.componentLibraries.length +
+    powerApps.pcfControls.length +
     powerApps.customPageCount +
-    powerApps.entityFormCount +
-    powerApps.dashboardCount +
-    powerApps.viewCount;
+    powerApps.entityFormCount;
 
   return (
     <div className={styles.container}>
@@ -72,10 +74,12 @@ export function PowerAppsList({ powerApps }: PowerAppsListProps) {
 
       <div className={styles.metricsRow}>
         <Badge appearance="filled" color="informative">Model-Driven Apps: {powerApps.modelDrivenApps.length}</Badge>
+        <Badge appearance="filled" color="informative">Component Libraries: {powerApps.componentLibraries.length}</Badge>
         <Badge appearance="filled" color="informative">Custom Pages: {powerApps.customPageCount}</Badge>
         <Badge appearance="filled" color="informative">Forms in Scope: {powerApps.entityFormCount}</Badge>
-        <Badge appearance="filled" color="informative">Views: {powerApps.viewCount}</Badge>
-        <Badge appearance="filled" color="informative">Dashboards: {powerApps.dashboardCount}</Badge>
+        <Badge appearance="filled" color="informative">Views: {powerApps.views.length}</Badge>
+        <Badge appearance="filled" color="informative">Dashboards: {powerApps.dashboards.length}</Badge>
+        <Badge appearance="filled" color="informative">PCF Controls: {powerApps.pcfControls.length}</Badge>
       </div>
 
       <div className={styles.splitGrid}>
@@ -116,16 +120,100 @@ export function PowerAppsList({ powerApps }: PowerAppsListProps) {
         </Card>
 
         <Card>
-          <Title3>Scope Signals</Title3>
+          <Title3>Libraries and Controls</Title3>
           <ul className={styles.list}>
-            <li><Text>{powerApps.entityFormCount} form artefact(s) already discovered in the current solution scope.</Text></li>
-            <li><Text>{powerApps.customPageCount} custom page component(s) are present and can be folded into deeper Power Apps analysis.</Text></li>
-            <li><Text>{powerApps.viewCount} view artefact(s) detected via the Power Apps stream in this phase.</Text></li>
-            <li><Text>{powerApps.dashboardCount} dashboard artefact(s) detected via the Power Apps stream in this phase.</Text></li>
+            <li><Text>{powerApps.componentLibraries.length} component librar{powerApps.componentLibraries.length === 1 ? 'y' : 'ies'} detected from canvas app inventory.</Text></li>
+            <li><Text>{powerApps.pcfControls.length} PCF control artefact(s) detected from custom control components.</Text></li>
+            <li><Text>{powerApps.customPageCount} custom page component(s) are present in the selected scope.</Text></li>
+            <li><Text>{powerApps.entityFormCount} form artefact(s) remain after dashboard forms are separated out.</Text></li>
           </ul>
-          <Text className={styles.summary}>
-            Phase 1 focuses on model-driven app inventory. Views, dashboards, component libraries, and PCF controls are left for later slices.
-          </Text>
+        </Card>
+      </div>
+
+      <div className={styles.splitGrid}>
+        <Card>
+          <Title3>Views and Dashboards</Title3>
+          <div className={styles.metricsRow}>
+            <Badge appearance="tint" color="informative">Views: {powerApps.views.length}</Badge>
+            <Badge appearance="tint" color="informative">Dashboards: {powerApps.dashboards.length}</Badge>
+          </div>
+
+          {powerApps.views.length > 0 && (
+            <>
+              <Text weight="semibold" style={{ marginTop: tokens.spacingVerticalS, display: 'block' }}>Views</Text>
+              <ul className={styles.list}>
+                {powerApps.views.slice(0, 15).map((view) => (
+                  <li key={view.id}><Text>{view.name} ({view.entityName || 'Unknown'})</Text></li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {powerApps.dashboards.length > 0 && (
+            <>
+              <Text weight="semibold" style={{ marginTop: tokens.spacingVerticalS, display: 'block' }}>Dashboards</Text>
+              <ul className={styles.list}>
+                {powerApps.dashboards.slice(0, 15).map((dashboard) => (
+                  <li key={dashboard.id}><Text>{dashboard.name} ({dashboard.dashboardType})</Text></li>
+                ))}
+              </ul>
+            </>
+          )}
+        </Card>
+
+        <Card>
+          <Title3>Component Libraries and PCF</Title3>
+          {powerApps.componentLibraries.length > 0 && (
+            <>
+              <Text weight="semibold" style={{ display: 'block', marginBottom: tokens.spacingVerticalS }}>Component Libraries</Text>
+              <div className={styles.tableWrap}>
+                <Table aria-label="Power Apps component libraries">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHeaderCell>Name</TableHeaderCell>
+                      <TableHeaderCell>Status</TableHeaderCell>
+                      <TableHeaderCell>Modified</TableHeaderCell>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {powerApps.componentLibraries.slice(0, 20).map((library) => (
+                      <TableRow key={library.id}>
+                        <TableCell><TableCellLayout>{library.displayName}</TableCellLayout></TableCell>
+                        <TableCell>{library.state || 'Unknown'}</TableCell>
+                        <TableCell>{library.modifiedOn ? formatDate(library.modifiedOn) : 'Unknown'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
+
+          {powerApps.pcfControls.length > 0 && (
+            <>
+              <Text weight="semibold" style={{ marginTop: tokens.spacingVerticalS, display: 'block' }}>PCF Controls</Text>
+              <div className={styles.tableWrap}>
+                <Table aria-label="Power Apps PCF controls">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHeaderCell>Name</TableHeaderCell>
+                      <TableHeaderCell>Version</TableHeaderCell>
+                      <TableHeaderCell>Resources</TableHeaderCell>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {powerApps.pcfControls.slice(0, 20).map((control) => (
+                      <TableRow key={control.id}>
+                        <TableCell><TableCellLayout>{control.name}</TableCellLayout></TableCell>
+                        <TableCell>{control.version || 'Unknown'}</TableCell>
+                        <TableCell>{control.resourceCount}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
         </Card>
       </div>
 

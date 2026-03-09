@@ -5,6 +5,8 @@ export interface CanvasApp {
   id: string;
   name: string;
   displayName: string;
+  canvasAppType: number | null;
+  canvasAppTypeName: string | null;
   createdOn: string | null;
   modifiedOn: string | null;
   ownerName: string | null;

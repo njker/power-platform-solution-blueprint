@@ -177,8 +177,11 @@ export class BlueprintGenerator {
       // STEP 6.11: Process Power Apps (model-driven app inventory)
       const powerApps = await this.processPowerApps(
         inventory.appModuleIds,
-        inventory.customPageIds.length,
-        inventory.formIds.length
+        inventory.savedQueryIds,
+        inventory.formIds,
+        inventory.customControlIds,
+        canvasApps,
+        inventory.customPageIds.length
       );
 
       // STEP 6.12: Process Security Roles
@@ -356,7 +359,7 @@ export class BlueprintGenerator {
         totalCanvasApps: canvasApps.length,
         totalCustomPages: inventory.customPageIds.length,
         totalPowerPagesArtifacts: this.countPowerPagesArtifacts(powerPages),
-        totalPowerApps: powerApps.modelDrivenApps.length,
+        totalPowerApps: this.countPowerAppsArtifacts(powerApps),
       };
 
       // Complete
@@ -1457,8 +1460,11 @@ export class BlueprintGenerator {
    */
   private async processPowerApps(
     appModuleIds: string[],
+    savedQueryIds: string[],
+    formIds: string[],
+    customControlIds: string[],
+    canvasApps: CanvasApp[],
     customPageCount: number,
-    entityFormCount: number
   ): Promise<PowerAppsInventory> {
     const discovery = new PowerAppsDiscovery(this.client);
     const warnings: string[] = [];
@@ -1482,6 +1488,30 @@ export class BlueprintGenerator {
         }
       }
 
+      const views = await discovery.getViewsByIds(savedQueryIds);
+      const dashboards = await discovery.getDashboardsByFormIds(formIds);
+
+      let pcfControls = await discovery.getCustomControlsByIds(customControlIds);
+      if (pcfControls.length === 0 && customControlIds.length > 0) {
+        const unfilteredControls = await discovery.getAllCustomControls();
+        if (unfilteredControls.length > 0) {
+          pcfControls = unfilteredControls;
+          warnings.push('Scoped PCF control filtering returned no records, so environment-wide PCF discovery was used.');
+        }
+      }
+
+      const componentLibraries = canvasApps
+        .filter((app) => app.canvasAppType === 1)
+        .map((app) => ({
+          id: app.id,
+          name: app.name,
+          displayName: app.displayName,
+          modifiedOn: app.modifiedOn,
+          state: app.state,
+        }));
+
+      const entityFormCount = formIds.length - dashboards.length;
+
       this.reportProgress({
         phase: 'discovering',
         entityName: '',
@@ -1492,20 +1522,24 @@ export class BlueprintGenerator {
 
       return {
         modelDrivenApps,
+        views,
+        dashboards,
+        componentLibraries,
+        pcfControls,
         customPageCount,
         entityFormCount,
-        dashboardCount: 0,
-        viewCount: 0,
         warnings,
       };
     } catch (error) {
       console.error('Error processing Power Apps:', error instanceof Error ? error.message : 'Unknown error');
       return {
         modelDrivenApps: [],
+        views: [],
+        dashboards: [],
+        componentLibraries: [],
+        pcfControls: [],
         customPageCount,
-        entityFormCount,
-        dashboardCount: 0,
-        viewCount: 0,
+        entityFormCount: 0,
         warnings: ['Power Apps discovery failed'],
       };
     }
@@ -1514,10 +1548,12 @@ export class BlueprintGenerator {
   private countPowerAppsArtifacts(powerApps: PowerAppsInventory): number {
     return (
       powerApps.modelDrivenApps.length +
+      powerApps.views.length +
+      powerApps.dashboards.length +
+      powerApps.componentLibraries.length +
+      powerApps.pcfControls.length +
       powerApps.customPageCount +
-      powerApps.entityFormCount +
-      powerApps.dashboardCount +
-      powerApps.viewCount
+      powerApps.entityFormCount
     );
   }
 
